@@ -4,11 +4,11 @@ const HTML = `
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Early Hints test</title>
+    <title>Arrêter de boire</title>
     <link rel="stylesheet" href="/test.css">
 </head>
 <body>
-    <h1>Early Hints test page</h1>
+    <h1>Daniel开始戒酒, Day: 1</h1>
 </body>
 </html>
 `;
