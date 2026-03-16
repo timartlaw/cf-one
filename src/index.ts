@@ -9,6 +9,7 @@ const HTML = `
 </head>
 <body>
     <h1>Daniel开始戒酒, Day: 1</h1>
+    <img src="https://cdn.jsdelivr.net/gh/timartlaw/edge-one/friend.webp" alt="Friends">
 </body>
 </html>
 `;
