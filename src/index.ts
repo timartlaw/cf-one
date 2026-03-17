@@ -1,39 +1,4 @@
 const CSS = "body { color: red; }";
-const HTML = `
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Arrêter de boire</title>
-    <link rel="stylesheet" href="/test.css">
-</head>
-<body>
-    <h1 id="dan">Daniel开始戒酒, Day: ${data.count}</h1>
-    <div style="font-family: sans-serif; padding: 20px;">
-      <button id="counter-btn" style="padding: 10px 20px; cursor: pointer;">
-        お酒を止める
-      </button>
-      <p id="msg" style="color: gray; font-size: 0.8em;">Last: ${data.lastClicked}</p>
-    </div>
-    <script>
-      const dan = document.getElementById('dan');
-      const btn = document.getElementById('counter-btn');
-      const msg = document.getElementById('msg');
-      
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        const res = await fetch('/increment', { method: 'POST' });
-        const newData = await res.json();
-        
-        dan.innerText = 'Daniel开始戒酒, Day: ' + newData.count;
-        msg.innerText = 'Last: ' + newData.lastClicked + (newData.message ? ' (' + newData.message + ')' : '');
-        btn.disabled = false;
-      });
-    </script>
-    <img src="https://cdn.jsdelivr.net/gh/timartlaw/edge-one/friend.webp" alt="Friends">
-</body>
-</html>
-`;
 
 export default {
   async fetch(req): Promise<Response> {
@@ -80,6 +45,41 @@ export default {
       });
     }
 
+const HTML = `
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Arrêter de boire</title>
+    <link rel="stylesheet" href="/test.css">
+</head>
+<body>
+    <h1 id="dan">Daniel开始戒酒, Day: ${data.count}</h1>
+    <div style="font-family: sans-serif; padding: 20px;">
+      <button id="counter-btn" style="padding: 10px 20px; cursor: pointer;">
+        お酒を止める
+      </button>
+      <p id="msg" style="color: gray; font-size: 0.8em;">Last: ${data.lastClicked}</p>
+    </div>
+    <script>
+      const dan = document.getElementById('dan');
+      const btn = document.getElementById('counter-btn');
+      const msg = document.getElementById('msg');
+      
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        const res = await fetch('/increment', { method: 'POST' });
+        const newData = await res.json();
+        
+        dan.innerText = 'Daniel开始戒酒, Day: ' + newData.count;
+        msg.innerText = 'Last: ' + newData.lastClicked + (newData.message ? ' (' + newData.message + ')' : '');
+        btn.disabled = false;
+      });
+    </script>
+    <img src="https://cdn.jsdelivr.net/gh/timartlaw/edge-one/friend.webp" alt="Friends">
+</body>
+</html>
+`;
     // If request is for test.css, serve the raw CSS
     if (/test\.css$/.test(req.url)) {
       return new Response(CSS, {
