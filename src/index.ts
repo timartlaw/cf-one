@@ -1,7 +1,8 @@
 const CSS = "body { color: red; }";
 
 export default {
-  async fetch(req): Promise<Response> {
+  async fetch(req, env): Promise<Response> {
+    const url = new URL(req.url);
     // Helper to get current Date object forced to UTC+8 start-of-day
     const getBeijingDate = (date) => {
       const d = new Intl.DateTimeFormat('en-GB', {
@@ -13,7 +14,7 @@ export default {
 
     let data = await env.COUNTER_KV.get("stats", { type: "json" }) 
                || { count: 0, lastDateMillis: 0, lastClicked: "Never" };
-    if (request.method === "POST" && url.pathname === "/increment") {
+    if (req.method === "POST" && url.pathname === "/increment") {
       const now = new Date();
       const today = getBeijingDate(now);
       
