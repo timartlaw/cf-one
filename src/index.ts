@@ -137,7 +137,7 @@ const HTML = `
               cell.textContent = date.toString();
               
               // Color by bit: Even = Light Blue, Odd = White
-              cell.style.backgroundColor = ((monthStatus & (1 << (day - 1))) !== 0) ? '#e3f2fd' : '#ffffff';
+              cell.style.backgroundColor = ((monthStatus & (1 << (date - 1))) !== 0) ? '#e3f2fd' : '#ffffff';
 
               // Highlight Today
               if (date === today) {
