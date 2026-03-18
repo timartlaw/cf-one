@@ -87,7 +87,7 @@ const HTML = `
         renderCalendar(newData.monthStatus)
       });
 
-      function renderCalendar(monthStatus): void {
+      function renderCalendar(monthStatus) {
         const container = document.getElementById('calendar-container');
         if (!container) return;
 
