@@ -13,7 +13,7 @@ export default {
     };
 
     let data = await env.COUNTER_KV.get("stats", { type: "json" }) 
-               || { count: 0, lastDateMillis: 0, lastClicked: "Never", monthStatus = 0 };
+               || { count: 0, lastDateMillis: 0, lastClicked: "Never", monthStatus: 0 };
     if (req.method === "POST" && url.pathname === "/increment") {
       const now = new Date();
       const today = getBeijingDate(now);
@@ -84,55 +84,64 @@ const HTML = `
         dan.innerText = 'Daniel开始戒酒, Day: ' + newData.count;
         msg.innerText = 'Last: ' + newData.lastClicked + (newData.message ? ' (' + newData.message + ')' : '');
         btn.disabled = false;
-        generateCalendar(newData.monthStatus)
+        renderCalendar(newData.monthStatus)
       });
 
-      function generateCalendar(monthStatus) {
+      function renderCalendar(monthStatus) {
+        const container = document.getElementById('calendar-container');
+        if (!container) return;
+
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
         const today = now.getDate();
-        const monthName = now.toLocaleString('default', { month: 'long' });
 
-        // Get first day of month (0=Sun, 1=Mon, etc) and total days
+        // Calendar logic
         const firstDay = new Date(year, month, 1).getDay();
         const totalDays = new Date(year, month + 1, 0).getDate();
 
-        let html = `<table border="1" style="border-collapse: collapse; text-align: center; width: 100%; font-family: sans-serif;">
-          <caption><strong>${monthName} ${year}</strong></caption>
-          <thead>
-            <tr style="background-color: #eee;">
-              <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
-            </tr>
-          </thead>
-          <tbody><tr>`;
+        const table = document.createElement('table');
+        table.style.borderCollapse = 'collapse';
+        table.style.width = '100%';
+        
+        const caption = table.createCaption();
+        caption.innerHTML = `<strong>${now.toLocaleString('default', { month: 'long' })} ${year}</strong>`;
 
-        // Fill empty cells for previous month's days
-        for (let i = 0; i < firstDay; i++) {
-          html += "<td></td>";
-        }
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+          const th = document.createElement('th');
+          th.textContent = day;
+          th.style.backgroundColor = '#eee';
+          headerRow.appendChild(th);
+        });
 
-        // Fill actual days
-        for (let day = 1; day <= totalDays; day++) {
-          // Color logic: bit-wise parity (Even = Light Blue, Odd = White)
-          const bgColor = ((monthStatus & (1 << (day - 1))) !== 0) ? "#e6f3ff" : "#ffffff";
-          
-          // Special highlight for "today"
-          const border = (day === today) ? "2px solid #ff5722" : "1px solid #ccc";
-
-          html += `<td style="background-color: ${bgColor}; border: ${border}; padding: 10px;">${day}</td>`;
-
-          // Start new row every 7 cells
-          if ((day + firstDay) % 7 === 0 && day !== totalDays) {
-            html += "</tr><tr>";
+        const tbody = table.createTBody();
+        let date = 1;
+        for (let i = 0; i < 6; i++) {
+          const row = tbody.insertRow();
+          for (let j = 0; j < 7; j++) {
+            const cell = row.insertCell();
+            if (i === 0 && j < firstDay) {
+              // Empty cell
+            } else if (date > totalDays) {
+              // Empty cell
+            } else {
+              cell.textContent = date;
+              cell.style.padding = '10px';
+              cell.style.border = date === today ? '2px solid #ff5722' : '1px solid #ccc';
+              
+              // td color by bit (Even = Blue, Odd = White)
+              cell.style.backgroundColor = ((monthStatus & (1 << (day - 1))) !== 0) ? '#e6f3ff' : '#ffffff';
+              date++;
+            }
           }
+          if (date > totalDays) break;
         }
-
-        html += "</tr></tbody></table>";
-        document.getElementById('calendar-container').innerHTML = html;
+        
+        container.innerHTML = '';
+        container.appendChild(table);
       }
-
-      //generateCalendar();
     </script>
     <div id="calendar-container"></div>
     <img src="https://cdn.jsdelivr.net/gh/timartlaw/edge-one/friend.webp" alt="Friends">
