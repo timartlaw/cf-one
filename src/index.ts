@@ -87,7 +87,7 @@ const HTML = `
         renderCalendar(newData.monthStatus)
       });
 
-      function renderCalendar(monthStatus) {
+      function renderCalendar(monthStatus): void {
         const container = document.getElementById('calendar-container');
         if (!container) return;
 
@@ -96,49 +96,60 @@ const HTML = `
         const month = now.getMonth();
         const today = now.getDate();
 
-        // Calendar logic
-        const firstDay = new Date(year, month, 1).getDay();
-        const totalDays = new Date(year, month + 1, 0).getDate();
+        // Calendar Math
+        const firstDay = new Date(year, month, 1).getDay(); // 0 (Sunday)
+        const totalDays = new Date(year, month + 1, 0).getDate(); // 31 days
+        const monthName = now.toLocaleString('default', { month: 'long' });
 
         const table = document.createElement('table');
-        table.style.borderCollapse = 'collapse';
         table.style.width = '100%';
-        
+        table.style.borderCollapse = 'collapse';
+        table.style.textAlign = 'center';
+
         const caption = table.createCaption();
-        caption.innerHTML = `<strong>${now.toLocaleString('default', { month: 'long' })} ${year}</strong>`;
+        caption.textContent = `${monthName} ${year}`;
+        caption.style.fontWeight = 'bold';
+        caption.style.padding = '10px';
 
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
         ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
           const th = document.createElement('th');
           th.textContent = day;
-          th.style.backgroundColor = '#eee';
+          th.style.background = '#f4f4f4';
+          th.style.border = '1px solid #ddd';
           headerRow.appendChild(th);
         });
 
         const tbody = table.createTBody();
         let date = 1;
+
         for (let i = 0; i < 6; i++) {
           const row = tbody.insertRow();
           for (let j = 0; j < 7; j++) {
             const cell = row.insertCell();
-            if (i === 0 && j < firstDay) {
-              // Empty cell
-            } else if (date > totalDays) {
-              // Empty cell
+            cell.style.border = '1px solid #ddd';
+            cell.style.padding = '12px';
+
+            if ((i === 0 && j < firstDay) || date > totalDays) {
+              cell.textContent = '';
             } else {
-              cell.textContent = date;
-              cell.style.padding = '10px';
-              cell.style.border = date === today ? '2px solid #ff5722' : '1px solid #ccc';
+              cell.textContent = date.toString();
               
-              // td color by bit (Even = Blue, Odd = White)
-              cell.style.backgroundColor = ((monthStatus & (1 << (day - 1))) !== 0) ? '#e6f3ff' : '#ffffff';
+              // Color by bit: Even = Light Blue, Odd = White
+              cell.style.backgroundColor = ((monthStatus & (1 << (day - 1))) !== 0) ? '#e3f2fd' : '#ffffff';
+
+              // Highlight Today
+              if (date === today) {
+                cell.style.outline = '2px solid #2196f3';
+                cell.style.fontWeight = 'bold';
+              }
               date++;
             }
           }
           if (date > totalDays) break;
         }
-        
+
         container.innerHTML = '';
         container.appendChild(table);
       }
