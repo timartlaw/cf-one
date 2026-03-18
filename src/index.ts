@@ -107,7 +107,7 @@ const HTML = `
         table.style.textAlign = 'center';
 
         const caption = table.createCaption();
-        caption.textContent = `${monthName} ${year}`;
+        caption.textContent = monthName + " " + year;
         caption.style.fontWeight = 'bold';
         caption.style.padding = '10px';
 
