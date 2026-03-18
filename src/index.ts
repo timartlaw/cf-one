@@ -13,7 +13,7 @@ export default {
     };
 
     let data = await env.COUNTER_KV.get("stats", { type: "json" }) 
-               || { count: 0, lastDateMillis: 0, lastClicked: "Never" };
+               || { count: 0, lastDateMillis: 0, lastClicked: "Never", monthStatus = 0 };
     if (req.method === "POST" && url.pathname === "/increment") {
       const now = new Date();
       const today = getBeijingDate(now);
@@ -38,6 +38,15 @@ export default {
       // Update metadata
       data.lastDateMillis = today.getTime();
       data.lastClicked = now.toLocaleString('en-GB', { timeZone: 'Asia/Shanghai' });
+
+      const day = now.getDate(); // 1 to 31
+      // 1. Reset status if it's the first of the month
+      if (day === 1) {
+          data.monthStatus = 0;
+      }
+      // 2. Update status (Set the bit corresponding to today)
+      // We shift '1' left by (day - 1) positions to target the correct bit
+      data.monthStatus |= (1 << (day - 1));
 
       await env.COUNTER_KV.put("stats", JSON.stringify(data));
 
@@ -75,8 +84,57 @@ const HTML = `
         dan.innerText = 'Daniel开始戒酒, Day: ' + newData.count;
         msg.innerText = 'Last: ' + newData.lastClicked + (newData.message ? ' (' + newData.message + ')' : '');
         btn.disabled = false;
+        generateCalendar(newData.monthStatus)
       });
+
+      function generateCalendar(monthStatus) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const today = now.getDate();
+        const monthName = now.toLocaleString('default', { month: 'long' });
+
+        // Get first day of month (0=Sun, 1=Mon, etc) and total days
+        const firstDay = new Date(year, month, 1).getDay();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        let html = `<table border="1" style="border-collapse: collapse; text-align: center; width: 100%; font-family: sans-serif;">
+          <caption><strong>${monthName} ${year}</strong></caption>
+          <thead>
+            <tr style="background-color: #eee;">
+              <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+            </tr>
+          </thead>
+          <tbody><tr>`;
+
+        // Fill empty cells for previous month's days
+        for (let i = 0; i < firstDay; i++) {
+          html += "<td></td>";
+        }
+
+        // Fill actual days
+        for (let day = 1; day <= totalDays; day++) {
+          // Color logic: bit-wise parity (Even = Light Blue, Odd = White)
+          const bgColor = ((monthStatus & (1 << (day - 1))) !== 0) ? "#e6f3ff" : "#ffffff";
+          
+          // Special highlight for "today"
+          const border = (day === today) ? "2px solid #ff5722" : "1px solid #ccc";
+
+          html += `<td style="background-color: ${bgColor}; border: ${border}; padding: 10px;">${day}</td>`;
+
+          // Start new row every 7 cells
+          if ((day + firstDay) % 7 === 0 && day !== totalDays) {
+            html += "</tr><tr>";
+          }
+        }
+
+        html += "</tr></tbody></table>";
+        document.getElementById('calendar-container').innerHTML = html;
+      }
+
+      //generateCalendar();
     </script>
+    <div id="calendar-container"></div>
     <img src="https://cdn.jsdelivr.net/gh/timartlaw/edge-one/friend.webp" alt="Friends">
 </body>
 </html>
